@@ -1,0 +1,43 @@
+---
+
+- name: Install requirements
+  apt: name={{item}}
+  with_items: [ apt-transport-https, curl, software-properties-common ]
+
+- name: Install Docker Key (Debian)
+  apt_key: id={{docker_keysig}} keyserver={{docker_keyserver}}
+
+- name: Install Docker Repository (Debian)
+  apt_repository: repo="{{docker_repo}}"
+
+- name: Install Docker
+  apt: name=docker-engine
+
+# - name: Setup Docker Service
+  # template: src=docker.service dest=/etc/systemd/system/docker.service mode=0755
+  # register: docker_service
+
+# - shell: systemctl daemon-reload
+  # when: docker_service.changed
+
+# - shell: systemctl restart docker
+  # when: docker_service.changed
+
+- name: Configure Docker
+  template: src=docker.j2 dest=/etc/default/docker
+  notify: docker restart
+
+- name: Ensure Docker is running
+  service: name=docker enabled=yes state=started
+
+- name: Install docker-py
+  shell: python -m pip install docker-py
+  when: docker_python
+
+- name: Add users to docker group
+  user: name={{item}} groups=docker append=yes
+  with_items: docker_users
+
+- name: Load docker images
+  docker: image={{item}} docker_api_version={{docker_api_version}} state=present
+  with_items: docker_images
