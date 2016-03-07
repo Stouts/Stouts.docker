@@ -6,6 +6,7 @@ docker_opts: "--dns 8.8.8.8 --dns 8.8.4.4"  # Docker command line options
 docker_keyserver:  hkp://p80.pool.sks-keyservers.net:80
 docker_keysig: 58118E89F3A912897C070ADBF76221572C52609D
 docker_repo: deb https://apt.dockerproject.org/repo {{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }} main
+docker_compose_release: "https://github.com/docker/compose/releases/download/1.6.2"   # Install docker-compose (set empty to skip)
 
 docker_users: []                            # List of usernames to add in docker group
 docker_python: no                           # Install docker-py

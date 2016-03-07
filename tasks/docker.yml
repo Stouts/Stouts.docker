@@ -57,3 +57,14 @@
     image: "{{item}}"
     state: present
   with_items: "{{docker_images}}"
+
+- name: Install docker-compose pt.1
+  get_url:
+    url: "{{docker_compose_release}}/docker-compose-{{ansible_system}}-{{ansible_machine}}"
+    dest: /usr/local/bin/docker-compose
+  when: docker_compose_release != ""
+  register: docker_compose_download
+
+- name: Install docker-compose pt.2
+  file: name=/usr/local/bin/docker-compose mode=0755
+  when: docker_compose_download.changed
