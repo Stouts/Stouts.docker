@@ -12,3 +12,8 @@ docker_users: []                            # List of usernames to add in docker
 docker_python: no                           # Install docker-py
 
 docker_images: []                           # List of docker images to load (required docker_python enabled)
+docker_run: []                              # List of docker containers to run
+                                            # docker_run:
+                                            #   - name: something
+                                            #     image: someuser/someimage
+                                            #     ... (see ansible docker module)
