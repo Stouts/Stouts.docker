@@ -10,6 +10,7 @@ docker_compose_release: "https://github.com/docker/compose/releases/download/1.6
 
 docker_users: []                            # List of usernames to add in docker group
 docker_python: no                           # Install docker-py
+docker_python_version: 1.10.6
 
 docker_images: []                           # List of docker images to load (required docker_python enabled)
 docker_run: []                              # List of docker containers to run

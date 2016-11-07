@@ -41,7 +41,7 @@
     state: started
 
 - name: Install docker-py
-  shell: python -m pip install docker-py
+  shell: python -m pip install docker-py=={{docker_python_version}}
   when: docker_python
 
 - name: Add users to docker group
