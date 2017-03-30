@@ -52,8 +52,7 @@
   with_items: "{{docker_users}}"
 
 - name: Load docker images
-  docker:
-    docker_api_version: "{{docker_api_version}}"
+  docker_image:
     image: "{{item}}"
     state: present
   with_items: "{{docker_images}}"
@@ -69,17 +68,27 @@
   file: name=/usr/local/bin/docker-compose mode=0755
   when: docker_compose_download.changed
 
+- name: Create docker networks
+  docker_network:
+    appends: "{{item.appends|default(omit)}}"
+    connected: "{{item.connected|default(omit)}}"
+    force: "{{item.force|default(omit)}}"
+    name: "{{item.name|default(item)}}"
+    state: "{{item.state|default('present')}}"
+  with_items: "{{docker_networks}}"
+
 - name: Run docker containers
-  docker:
+  docker_container:
     command: "{{item.command|default(omit)}}"
     env: "{{item.env|default(omit)}}"
     hostname: "{{item.hostname|default(omit)}}"
     image: "{{item.image|default(item.name)}}"
     name: "{{item.name}}"
-    net: "{{item.net|default(omit)}}"
+    network_mode: "{{item.network_mode|default(omit)}}"
     ports: "{{item.ports|default(omit)}}"
-    pull: "{{item.pull|default('always')}}"
-    restart_policy: "{{item.restart_policy|default('always')}}"
-    state: "{{item.state|default('reloaded')}}"
+    pull: "{{item.pull|default(omit)}}"
+    restart_policy: "{{item.restart_policy|default(omit)}}"
+    state: "{{item.state|default('present')}}"
+    recreate: "{{item.recreate|default(False)}}"
     volumes: "{{item.volumes|default(omit)}}"
   with_items: "{{docker_run}}"

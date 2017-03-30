@@ -17,4 +17,9 @@ docker_run: []                              # List of docker containers to run
                                             # docker_run:
                                             #   - name: something
                                             #     image: someuser/someimage
-                                            #     ... (see ansible docker module)
+                                            #     ... (see ansible docker_container module)
+docker_networks: []                         # List of docker networks to create
+                                            # docker_networks:
+                                            #   - name: something
+                                            #     image: someuser/someimage
+                                            #     ... (see ansible docker_container module)
