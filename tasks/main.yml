@@ -1,5 +1,9 @@
 ---
 
+- include: setup.yml
+  when: docker_enabled and docker_setup
+  tags: [docker, docker-setup]
+
 - include: docker.yml
-  when: docker_enabled
-  tags: [docker]
+  when: docker_enabled and docker_run
+  tags: [docker, docker-run]

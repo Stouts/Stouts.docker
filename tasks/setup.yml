@@ -1,0 +1,53 @@
+---
+
+- name: Install requirements
+  apt:
+    name: "{{item}}"
+  with_items: [apt-transport-https, curl, software-properties-common]
+
+- name: Install Docker Key (Debian)
+  apt_key:
+    id: "{{docker_keysig}}"
+    keyserver: "{{docker_keyserver}}"
+
+- name: Install Docker Repository (Debian)
+  apt_repository:
+    repo: "{{docker_repo}}"
+
+- name: Install Docker
+  apt:
+    name: docker-engine
+
+- name: Configure Docker
+  template:
+    src: docker.j2
+    dest: /etc/default/docker
+  notify: docker restart
+
+- name: Ensure Docker is running
+  service:
+    enabled: yes
+    name: docker
+    state: started
+
+- name: Install docker-py
+  shell: python -m pip install docker-py=={{docker_python_version}}
+  when: docker_python
+
+- name: Add users to docker group
+  user:
+    append: yes
+    groups: docker
+    name: "{{item}}"
+  with_items: "{{docker_users}}"
+
+- name: Install docker-compose pt.1
+  get_url:
+    url: "{{docker_compose_release}}/docker-compose-{{ansible_system}}-{{ansible_machine}}"
+    dest: /usr/local/bin/docker-compose
+  when: docker_compose_release != ""
+  register: docker_compose_download
+
+- name: Install docker-compose pt.2
+  file: name=/usr/local/bin/docker-compose mode=0755
+  when: docker_compose_download.changed

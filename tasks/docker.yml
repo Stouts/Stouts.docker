@@ -1,94 +1,69 @@
 ---
 
-- name: Install requirements
-  apt:
-    name: "{{item}}"
-  with_items: [apt-transport-https, curl, software-properties-common]
-
-- name: Install Docker Key (Debian)
-  apt_key:
-    id: "{{docker_keysig}}"
-    keyserver: "{{docker_keyserver}}"
-
-- name: Install Docker Repository (Debian)
-  apt_repository:
-    repo: "{{docker_repo}}"
-
-- name: Install Docker
-  apt:
-    name: docker-engine
-
-# - name: Setup Docker Service
-  # template: src=docker.service dest=/etc/systemd/system/docker.service mode=0755
-  # register: docker_service
-
-# - shell: systemctl daemon-reload
-  # when: docker_service.changed
-
-# - shell: systemctl restart docker
-  # when: docker_service.changed
-
-- name: Configure Docker
-  template:
-    src: docker.j2
-    dest: /etc/default/docker
-  notify: docker restart
-
-- name: Ensure Docker is running
-  service:
-    enabled: yes
-    name: docker
-    state: started
-
-- name: Install docker-py
-  shell: python -m pip install docker-py=={{docker_python_version}}
-  when: docker_python
-
-- name: Add users to docker group
-  user:
-    append: yes
-    groups: docker
-    name: "{{item}}"
-  with_items: "{{docker_users}}"
-
-- name: Load docker images
-  docker_image:
-    image: "{{item}}"
-    state: present
-  with_items: "{{docker_images}}"
-
-- name: Install docker-compose pt.1
-  get_url:
-    url: "{{docker_compose_release}}/docker-compose-{{ansible_system}}-{{ansible_machine}}"
-    dest: /usr/local/bin/docker-compose
-  when: docker_compose_release != ""
-  register: docker_compose_download
-
-- name: Install docker-compose pt.2
-  file: name=/usr/local/bin/docker-compose mode=0755
-  when: docker_compose_download.changed
-
 - name: Create docker networks
   docker_network:
+    state: present
+    name: "{{item.name|default(item)}}"
     appends: "{{item.appends|default(omit)}}"
     connected: "{{item.connected|default(omit)}}"
+    driver: "{{item.driver|default(omit)}}"
     force: "{{item.force|default(omit)}}"
-    name: "{{item.name|default(item)}}"
-    state: "{{item.state|default('present')}}"
   with_items: "{{docker_networks}}"
+
+- name: Pull docker images
+  docker_image:
+    state: present
+    name: "{{item}}"
+    tag: "{{item.tag|default(omit)}}"
+  with_items: "{{docker_images}}"
 
 - name: Run docker containers
   docker_container:
+    state: "{{item.state|default('started')}}"
+    name: "{{item.name|default(item)}}"
+    image: "{{item.image|default(item.name)|default(item)}}"
     command: "{{item.command|default(omit)}}"
+    devices: "{{item.devices|default(omit)}}"
+    entrypoint: "{{item.entrypoint|default(omit)}}"
     env: "{{item.env|default(omit)}}"
+    env_file: "{{item.env_file|default(omit)}}"
+    exposed_ports: "{{item.exposed_ports|default(omit)}}"
     hostname: "{{item.hostname|default(omit)}}"
-    image: "{{item.image|default(item.name)}}"
-    name: "{{item.name}}"
+    kernel_memory: "{{item.kernel_memory|default(omit)}}"
+    labels: "{{item.labels|default(omit)}}"
+    links: "{{item.links|default(omit)}}"
+    log_driver: "{{item.log_driver|default(omit)}}"
+    log_options: "{{item.log_options|default(omit)}}"
+    memory: "{{item.memory|default(omit)}}"
     network_mode: "{{item.network_mode|default(omit)}}"
-    ports: "{{item.ports|default(omit)}}"
+    networks: "{{item.networks|default(omit)}}"
+    published_ports: "{{item.published_ports|default(omit)}}"
     pull: "{{item.pull|default(omit)}}"
+    recreate: "{{item.recreate|default(omit)}}"
+    restart: "{{item.restart|default(true)}}"
     restart_policy: "{{item.restart_policy|default(omit)}}"
-    state: "{{item.state|default('present')}}"
-    recreate: "{{item.recreate|default(False)}}"
     volumes: "{{item.volumes|default(omit)}}"
-  with_items: "{{docker_run}}"
+    volumes_from: "{{item.volumes_from|default(omit)}}"
+  with_items: "{{docker_containers}}"
+
+- name: Remove containers
+  docker_container:
+    state: absent
+    name: "{{item.name|default(item)}}"
+  with_items: "{{docker_containers_remove}}"
+
+- name: Remove images
+  docker_image:
+    name: "{{item.name|default(item)}}"
+    tag: "{{item.tag|default(omit)}}"
+    push: "{{item.push|default(omit)}}"
+    repository: "{{item.repository|default(omit)}}"
+    state: absent
+  with_items: "{{docker_images_remove}}"
+
+- name: Delete networks, disconnecting all containers
+  docker_network:
+    name: "{{item}}"
+    state: absent
+    force: yes
+  with_items: "{{docker_networks_remove}}"

@@ -1,6 +1,9 @@
 ---
 
 docker_enabled: yes                         # Enable the role
+docker_setup: yes                           # Install docker and dependencies
+docker_run: yes                             # Setup docker images/containers/networks
+
 docker_api_version: 1.18
 docker_opts: "--dns 8.8.8.8 --dns 8.8.4.4"  # Docker command line options
 docker_keyserver:  hkp://p80.pool.sks-keyservers.net:80
@@ -13,7 +16,7 @@ docker_python: no                           # Install docker-py
 docker_python_version: 1.10.6
 
 docker_images: []                           # List of docker images to load (required docker_python enabled)
-docker_run: []                              # List of docker containers to run
+docker_containers: []                       # List of docker containers to run
                                             # docker_run:
                                             #   - name: something
                                             #     image: someuser/someimage
@@ -23,3 +26,8 @@ docker_networks: []                         # List of docker networks to create
                                             #   - name: something
                                             #     image: someuser/someimage
                                             #     ... (see ansible docker_container module)
+
+docker_containers_remove: []
+docker_images_remove: []
+docker_networks_remove: []
+
