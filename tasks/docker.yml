@@ -10,6 +10,13 @@
     force: "{{item.force|default(omit)}}"
   with_items: "{{docker_networks}}"
 
+- name: Login to docker registries
+  docker_login:
+    registry: "{{item.registry}}"
+    username: "{{item.username}}"
+    password: "{{item.password}}"
+  with_items: "{{docker_registries}}"
+
 - name: Pull docker images
   docker_image:
     state: present

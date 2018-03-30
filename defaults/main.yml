@@ -31,3 +31,8 @@ docker_containers_remove: []
 docker_images_remove: []
 docker_networks_remove: []
 
+docker_logins: []                           # List of docker registries to login
+                                            # docker_logins:
+                                            #   - registry: docker.registry.com
+                                            #     username: username
+                                            #     password: password
