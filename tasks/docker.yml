@@ -15,7 +15,7 @@
     registry: "{{item.registry}}"
     username: "{{item.username}}"
     password: "{{item.password}}"
-  with_items: "{{docker_registries}}"
+  with_items: "{{docker_logins}}"
 
 - name: Pull docker images
   docker_image:
