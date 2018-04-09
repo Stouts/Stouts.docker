@@ -42,6 +42,8 @@ docker_logins: []                           # List of docker registries to login
                                             #   - registry: docker.registry.com
                                             #     username: username
                                             #     password: password
+
+docker_logrotate: false                     # Rotate docker logs
 ```
 
 #### Usage

@@ -53,6 +53,12 @@
     volumes_from: "{{item.volumes_from|default(omit)}}"
   with_items: "{{docker_containers}}"
 
+- name: Setup logrotate
+  template:
+    src: logrotate
+    dest: /etc/logrotate.d/docker-logs
+  when: docker_logrotate
+
 - name: Remove containers
   docker_container:
     state: absent
