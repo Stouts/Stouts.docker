@@ -51,3 +51,9 @@
 - name: Install docker-compose pt.2
   file: name=/usr/local/bin/docker-compose mode=0755
   when: docker_compose_download.changed
+
+- name: Setup logrotate
+  template:
+    src: logrotate
+    dest: /etc/logrotate.d/docker-logs
+  when: docker_logrotate
