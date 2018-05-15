@@ -1,19 +1,24 @@
 ---
 
 docker_enabled: yes                         # Enable the role
+
 docker_setup: yes                           # Install docker and dependencies
 docker_run: yes                             # Setup docker images/containers/networks
 
-docker_api_version: 1.18
+docker_edition: ce
+docker_keysig: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+docker_keyserver: hkp://pool.sks-keyservers.net
+docker_repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} edge"
 docker_opts: "--dns 8.8.8.8 --dns 8.8.4.4"  # Docker command line options
-docker_keyserver:  hkp://p80.pool.sks-keyservers.net:80
-docker_keysig: 58118E89F3A912897C070ADBF76221572C52609D
-docker_repo: deb https://apt.dockerproject.org/repo {{ ansible_distribution|lower }}-{{ ansible_distribution_release|lower }} main
-docker_compose_release: "https://github.com/docker/compose/releases/download/1.6.2"   # Install docker-compose (set empty to skip)
+
+docker_compose_version: "1.21.0"
+docker_compose_release: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}"   # Install docker-compose (set empty to skip)
 
 docker_users: []                            # List of usernames to add in docker group
 docker_python: no                           # Install docker-py
 docker_python_version: 1.10.6
+
+docker_clean: false                         # Setup a cronjob to clean docker
 
 docker_images: []                           # List of docker images to load (required docker_python enabled)
 docker_containers: []                       # List of docker containers to run

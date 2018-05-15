@@ -3,7 +3,7 @@
 - name: Install requirements
   apt:
     name: "{{item}}"
-  with_items: [apt-transport-https, curl, software-properties-common]
+  with_items: [apt-transport-https, curl, cron, software-properties-common]
 
 - name: Install Docker Key (Debian)
   apt_key:
@@ -13,10 +13,11 @@
 - name: Install Docker Repository (Debian)
   apt_repository:
     repo: "{{docker_repo}}"
+    update_cache: true
 
 - name: Install Docker
   apt:
-    name: docker-engine
+    name: "docker-{{ docker_edition }}"
 
 - name: Configure Docker
   template:
@@ -30,30 +31,34 @@
     name: docker
     state: started
 
-- name: Install docker-py
-  shell: python -m pip install docker-py=={{docker_python_version}}
-  when: docker_python
-
-- name: Add users to docker group
+- name: Add specific users to docker group
   user:
     append: yes
     groups: docker
     name: "{{item}}"
   with_items: "{{docker_users}}"
 
-- name: Install docker-compose pt.1
+- name: Install Docker Compose
   get_url:
     url: "{{docker_compose_release}}/docker-compose-{{ansible_system}}-{{ansible_machine}}"
     dest: /usr/local/bin/docker-compose
+    mode: 0755
   when: docker_compose_release != ""
-  register: docker_compose_download
-
-- name: Install docker-compose pt.2
-  file: name=/usr/local/bin/docker-compose mode=0755
-  when: docker_compose_download.changed
 
 - name: Setup logrotate
   template:
     src: logrotate
     dest: /etc/logrotate.d/docker-logs
   when: docker_logrotate
+
+- name: Setup cron
+  cron:
+    name: Docker Clean
+    job: "docker system prune -f"
+    minute: 0
+    hour: 0
+  when: docker_clean
+
+- name: Install Docker Python
+  shell: python -m pip install docker-py=={{docker_python_version}}
+  when: docker_python
