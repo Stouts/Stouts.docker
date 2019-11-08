@@ -3,7 +3,7 @@
 - name: Install requirements
   apt:
     name: "{{item}}"
-  with_items: [apt-transport-https, curl, cron, software-properties-common]
+  with_items: [apt-transport-https, ca-certificates, curl, gnupg-agent, software-properties-common]
 
 - name: Install Docker Key (Debian)
   apt_key:
