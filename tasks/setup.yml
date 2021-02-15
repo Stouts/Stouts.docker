@@ -60,5 +60,6 @@
   when: docker_clean
 
 - name: Install Docker Python
-  shell: python -m pip install docker-py=={{docker_python_version}}
+  pip:
+    name: "docker{{docker_python_version}}"
   when: docker_python

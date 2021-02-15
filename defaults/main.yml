@@ -16,7 +16,7 @@ docker_compose_release: "https://github.com/docker/compose/releases/download/{{d
 
 docker_users: []                            # List of usernames to add in docker group
 docker_python: no                           # Install docker-py
-docker_python_version: 1.10.6
+docker_python_version: ""                   # For example: ">=4.4.1"
 
 docker_clean: false                         # Setup a cronjob to clean docker
 
