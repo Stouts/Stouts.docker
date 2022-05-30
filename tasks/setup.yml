@@ -1,5 +1,20 @@
 ---
 
+- name: Ensure old versions of Docker are not installed.
+  package:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Ensure dependencies are installed.
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - "{{ 'gnupg' if ansible_distribution == 'Ubuntu' or ansible_distribution_version is version('20.04', '>=') else 'gnupg2' }}"
+    state: present
+
 - name: Install requirements
   apt:
     name: "{{item}}"
@@ -7,17 +22,17 @@
 
 - name: Install Docker Key (Debian)
   apt_key:
-    id: "{{docker_keysig}}"
-    keyserver: "{{docker_keyserver}}"
+    id: "{{docker_apt_key_id}}"
+    url: "{{docker_apt_key_url}}"
 
 - name: Install Docker Repository (Debian)
   apt_repository:
-    repo: "{{docker_repo}}"
+    repo: "{{docker_apt_repo}}"
     update_cache: true
 
 - name: Install Docker
   apt:
-    name: "docker-{{ docker_edition }}"
+    name: "{{docker_package}}"
 
 - name: Configure Docker
   template:
